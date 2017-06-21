@@ -13,7 +13,6 @@ export const login = (user, history) => {
       })
     })
       .then(response => {
-        console.log(response);
         if (!response.ok) {
           throw Error(response.statusText);
         }
@@ -28,7 +27,7 @@ export const login = (user, history) => {
             sessionService
               .saveUser(user)
               .then(() => {
-                history.push("/orders");
+                history.push("/dashboard");
               })
               .catch(err => console.error(err));
           })

@@ -38,6 +38,23 @@ export const getOrders = () => {
   };
 };
 
+export const getWeeklyOrderCountByUser = () => {
+  return (dispatch) => {
+    dispatch(requestData());
+    return axios.get(`http://localhost:8080/api/orders/weekly/count`, {
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: localStorage.getItem('token')
+      },
+    }).then(res => res.data.orders)
+      .then(res => {
+        console.log(res); dispatch(receiveData(res));
+      })
+      .catch(err => dispatch(failData(err)));
+  };
+};
+
 export const saveOrder = (order) => {
   return (dispatch) => {
     dispatch(requestData());

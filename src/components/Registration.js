@@ -8,20 +8,13 @@ import Paper from "material-ui/Paper";
 import TextField from "material-ui/TextField";
 import RaisedButton from "material-ui/RaisedButton";
 
-const styles = {
-  container: {
-    width: "100%",
-    textAlign: "center"
-  },
-  loginForm: {
-    height: 350,
-    width: 350,
-    margin: "0 auto",
-    marginTop: 30,
-    textAlign: "center",
-    display: "inline-block",
-    padding: 20
-  }
+const style = {
+  height: 350,
+  width: 350,
+  margin: 20,
+  textAlign: "center",
+  display: "inline-block",
+  padding: 20
 };
 
 class Login extends Component {
@@ -48,41 +41,38 @@ class Login extends Component {
 
   handleChange(event, newValue) {
     event.persist(); // allow native event access (see: https://facebook.github.io/react/docs/events.html)
-    // give react a function to set the state asynchronously.
-    // here it's using the "name" value set on the TextField
-    // to set state.person.[firstname|lastname].
-    this.setState(state => (state[event.target.name] = newValue));
+        // give react a function to set the state asynchronously.
+        // here it's using the "name" value set on the TextField
+        // to set state.person.[firstname|lastname].
+    this.setState((state) => state[event.target.name] = newValue);
+
   }
 
   render() {
     const { history } = this.props;
     return (
-      <div style={styles.container}>
-        <Paper style={styles.loginForm} zDepth={3} rounded={false}>
-          <h3>LOGIN</h3>
-          <TextField
-            hintText="Email Field"
-            floatingLabelText="Email"
-            type="text"
-            name="email"
-            value={this.state.email}
-            onChange={this.handleChange}
-          />
-          <TextField
-            hintText="Password Field"
-            floatingLabelText="Password"
-            type="password"
-            name="password"
-            value={this.state.password}
-            onChange={this.handleChange}
-          />
-          <RaisedButton
-            label="Login"
-            primary={true}
-            onClick={() => this.onSubmit(history)}
-          />
-        </Paper>
-      </div>
+      
+      <Paper style={style} zDepth={3} rounded={false}>
+        <h3>REGISTER</h3>
+        <TextField
+          hintText="Email Field"
+          floatingLabelText="Email"
+          type="text"
+          name="email"
+          value={this.state.email}
+          onChange={this.handleChange}
+          isRequired={true}
+        />
+        <TextField
+          hintText="Password Field"
+          floatingLabelText="Password"
+          type="password"
+          name="password"
+          value={this.state.password}
+          onChange={this.handleChange}
+        />
+        <RaisedButton label="Login" primary={true} onClick={() => this.onSubmit(history)}/>
+      </Paper>
     );
   }
 }

@@ -8,21 +8,18 @@ import Home from './Home';
 import Login from './Login';
 import PrivateRoute from './PrivateRoute';
 import OrderList from './OrderList';
-import OrderEdit from './OrderEdit';
-import AppBar from 'material-ui/AppBar';
+import OrderForm from './OrderForm';
+import Dashboard from './Dashboard';
 
 const App = ({ authenticated, checked }) => (
   <Router>
     { checked &&
       <div>
-        <AppBar
-          title="D2D Dashboard"
-          iconClassNameRight="muidocs-icon-navigation-expand-more"
-        />
-        <PrivateRoute exact path="/" component={Home} authenticated={authenticated}/>
+        <Route path="/" component={Home}/>
         <Route path="/login" component={Login}/>
         <PrivateRoute exact path="/orders" component={OrderList} authenticated={authenticated}/>
-        <PrivateRoute exact path="/orders/:cuid" component={OrderEdit} authenticated={authenticated}/>
+        <PrivateRoute exact path="/orders/:cuid" component={OrderForm} authenticated={authenticated}/>
+        <PrivateRoute exact path="/dashboard" component={Dashboard} authenticated={authenticated}/>
       </div>
     }
   </Router>

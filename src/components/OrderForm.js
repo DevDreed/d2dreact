@@ -6,6 +6,29 @@ import * as orderActions from "../actions/orderActions";
 import MuiGeoSuggest from "material-ui-geosuggest";
 import TextField from "material-ui/TextField";
 import RaisedButton from "material-ui/RaisedButton";
+import Paper from "material-ui/Paper";
+import axios from "axios";
+
+const styles = {
+  container: {
+    width: "100%",
+    textAlign: "center"
+  },
+  style: {
+    width: "100%",
+    margin: "0 auto",
+    display: "inline-block",
+    padding: 20
+  },
+  textField: {
+    margin: 10,
+    width: "40%",
+  },
+  autocomplete: {
+    width: "calc(80% + 20px)",
+    margin: 10
+  }
+};
 
 class OrderForm extends Component {
   constructor(props, context) {
@@ -23,16 +46,57 @@ class OrderForm extends Component {
         state: "",
         zipcode: "",
         location: { coordinates: [] }
-      }
+      },
+      autocomplete: ""
     };
 
     this.onSubmit = this.onSubmit.bind(this);
     this.handleChange = this.handleChange.bind(this);
   }
 
+  componentWillMount() {
+    if (this.props.match && this.props.match.params.cuid) {
+      axios
+        .get(
+          `http://localhost:8080/api/orders/${this.props.match.params.cuid}`,
+        {
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: localStorage.getItem("token")
+          }
+        }
+        )
+        .then(res => res.data.order)
+        .then(order => {
+          this.setState({ order });
+        })
+        .catch(err => console.log(err));
+    }
+  }
+
   onSubmit() {
-    const { saveOrder } = this.props.actions;
-    saveOrder(this.state.order);
+    const { saveOrder, updateOrder } = this.props.actions;
+    if (this.props.match && this.props.match.params.cuid) {
+      updateOrder(this.state.order);
+    } else {
+      saveOrder(this.state.order);
+    }
+    this.setState({
+      order: {
+        firstName: "",
+        lastName: "",
+        phone: "",
+        email: "",
+        address1: "",
+        address2: "",
+        city: "",
+        state: "",
+        zipcode: "",
+        location: { coordinates: [] }
+      }
+    });
+    document.getElementsByName("autocomplete")[0].value = "";
   }
 
   setAddressFields(place) {
@@ -62,12 +126,17 @@ class OrderForm extends Component {
     });
     this.setState(state => (state.order.address1 = `${streetNumber} ${route}`));
     this.setState(state => (state.order.city = `${locality}`));
-    this.setState(state => (state.order.state = `${administrative_area_level_1}`));
+    this.setState(
+      state => (state.order.state = `${administrative_area_level_1}`)
+    );
     this.setState(state => (state.order.zipcode = `${postal_code}`));
 
     location = place.geometry.location;
     if (location) {
-      this.setState(state => (state.order.location.coordinates = [location.lng(), location.lat()]));
+      this.setState(
+        state =>
+          (state.order.location.coordinates = [location.lng(), location.lat()])
+      );
     }
   }
 
@@ -78,111 +147,114 @@ class OrderForm extends Component {
 
   render() {
     return (
-      <div>
-        <h3>Add Order</h3>
-        <TextField
-          hintText="First Name"
-          floatingLabelText="First Name"
-          type="text"
-          name="firstName"
-          value={this.state.order.firstName}
-          onChange={this.handleChange}
-          errorText="This field is required"
-        />
-        <br />
-        <TextField
-          hintText="Last Name"
-          floatingLabelText="Last Name"
-          type="text"
-          name="lastName"
-          value={this.state.order.lastName}
-          onChange={this.handleChange}
-          errorText="This field is required"
-        />
-        <br />
-        <TextField
-          hintText="Phone"
-          floatingLabelText="Phone"
-          type="tel"
-          name="phone"
-          value={this.state.order.phone}
-          onChange={this.handleChange}
-          errorText="This field is required"
-        />
-        <br />
-        <TextField
-          hintText="Email"
-          floatingLabelText="Email"
-          type="text"
-          name="email"
-          value={this.state.order.email}
-          onChange={this.handleChange}
-          errorText="This field is required"
-        />
-        <br />
-        <MuiGeoSuggest
-          options={{
-            types: ["geocode"],
-            componentRestrictions: { country: "us" }
-          }}
-          onPlaceChange={place => this.setAddressFields(place)}
-          style={{ width: "100%" }}
-        />
-        <br />
-        <TextField
-          hintText="Street Address"
-          floatingLabelText="Address"
-          type="text"
-          name="address1"
-          value={this.state.order.address1}
-          onChange={this.handleChange}
-          errorText="This field is required"
-        />
-        <br />
-        <TextField
-          type="text"
-          name="address2"
-          value={this.state.order.address2}
-          onChange={this.handleChange}
-          errorText="This field is required"
-        />
-        <br />
-        <TextField
-          hintText="City"
-          floatingLabelText="City"
-          type="text"
-          name="city"
-          value={this.state.order.city}
-          onChange={this.handleChange}
-          errorText="This field is required"
-        />
-        <br />
-        <TextField
-          hintText="State"
-          floatingLabelText="State"
-          type="text"
-          name="state"
-          value={this.state.order.state}
-          onChange={this.handleChange}
-          errorText="This field is required"
-        />
-        <br />
-        <TextField
-          hintText="Zipcode"
-          floatingLabelText="Zipcode"
-          type="text"
-          name="zipcode"
-          value={this.state.order.zipcode}
-          onChange={this.handleChange}
-          errorText="This field is required"
-        />
-        <br />
-        <RaisedButton
-          onClick={() => this.onSubmit(history)}
-          type="submit"
-          label="Submit"
-          primary={true}
-        />
+      <div style={styles.container}>
+        <div style={styles.style}>
+          <TextField
+            hintText="First Name"
+            floatingLabelText="First Name"
+            type="text"
+            name="firstName"
+            value={this.state.order.firstName}
+            onChange={this.handleChange}
+            style={styles.textField}
+          />
+          <TextField
+            hintText="Last Name"
+            floatingLabelText="Last Name"
+            type="text"
+            name="lastName"
+            value={this.state.order.lastName}
+            onChange={this.handleChange}
+            style={styles.textField}
+          />
+          <br />
+          <TextField
+            hintText="Phone"
+            floatingLabelText="Phone"
+            type="tel"
+            name="phone"
+            value={this.state.order.phone}
+            onChange={this.handleChange}
+            style={styles.textField}
+          />
+          <TextField
+            hintText="Email"
+            floatingLabelText="Email"
+            type="text"
+            name="email"
+            value={this.state.order.email}
+            onChange={this.handleChange}
+            style={styles.textField}
+          />
+          <br />
+          <MuiGeoSuggest
+            options={{
+              types: ["geocode"],
+              componentRestrictions: { country: "us" }
+            }}
+            name="autocomplete"
+            onPlaceChange={place => this.setAddressFields(place)}
+            hintText="Auto Complete"
+            floatingLabelText="Auto Complete"
+            style={styles.autocomplete}
+          />
+          <br />
+          <TextField
+            hintText="Street Address"
+            floatingLabelText="Street Address"
+            type="text"
+            name="address1"
+            value={this.state.order.address1}
+            onChange={this.handleChange}
+            style={styles.textField}
+          />
+          <TextField
+            hintText="Other Address"
+            floatingLabelText="Other Address"
+            type="text"
+            name="address2"
+            value={this.state.order.address2}
+            onChange={this.handleChange}
+            style={styles.textField}
+          />
+          <br />
+          <TextField
+            hintText="City"
+            floatingLabelText="City"
+            type="text"
+            name="city"
+            value={this.state.order.city}
+            onChange={this.handleChange}
+            style={styles.textField}
+          />
+          <TextField
+            hintText="State"
+            floatingLabelText="State"
+            type="text"
+            name="state"
+            value={this.state.order.state}
+            onChange={this.handleChange}
+            style={styles.textField}
+          />
+          <br />
+          <TextField
+            hintText="Zipcode"
+            floatingLabelText="Zipcode"
+            type="text"
+            name="zipcode"
+            value={this.state.order.zipcode}
+            onChange={this.handleChange}
+            style={styles.textField}
+          />
+          <br />
+          <RaisedButton
+            onClick={() => this.onSubmit(history)}
+            type="submit"
+            label="Submit"
+            primary={true}
+            style={styles.textField}
+          />
+        </div>
       </div>
     );
   }
